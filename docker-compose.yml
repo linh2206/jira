@@ -1,0 +1,86 @@
+version: '3.8'
+
+services:
+  mongodb:
+    image: mongo:7.0
+    container_name: jira-mongodb
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: password123
+      MONGO_INITDB_DATABASE: jira
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+      - ./mongo-init:/docker-entrypoint-initdb.d
+    networks:
+      - jira-network
+
+  jira:
+    image: atlassian/jira-software:9.12.0
+    container_name: jira-app
+    restart: unless-stopped
+    environment:
+      - ATL_PROXY_NAME=localhost
+      - ATL_PROXY_PORT=8080
+      - ATL_TOMCAT_SCHEME=http
+      - ATL_TOMCAT_SECURE=false
+      - ATL_TOMCAT_SERVERNAME=localhost
+      - ATL_TOMCAT_PORT=8080
+      - ATL_TOMCAT_CONTEXTPATH=
+      - ATL_JDBC_URL=jdbc:postgresql://postgres:5432/jiradb
+      - ATL_JDBC_USER=jira
+      - ATL_JDBC_PASSWORD=jira123
+      - ATL_DB_DRIVER=org.postgresql.Driver
+      - ATL_DB_TYPE=postgres72
+    ports:
+      - "8080:8080"
+    volumes:
+      - jira_data:/var/atlassian/application-data/jira
+      - ./jira-config:/opt/atlassian/jira/conf
+    depends_on:
+      - postgres
+    networks:
+      - jira-network
+
+  postgres:
+    image: postgres:15
+    container_name: jira-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: jiradb
+      POSTGRES_USER: jira
+      POSTGRES_PASSWORD: jira123
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - jira-network
+
+  mongo-express:
+    image: mongo-express:1.0.2
+    container_name: jira-mongo-express
+    restart: unless-stopped
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: admin
+      ME_CONFIG_MONGODB_ADMINPASSWORD: password123
+      ME_CONFIG_MONGODB_URL: mongodb://admin:password123@mongodb:27017/
+      ME_CONFIG_BASICAUTH_USERNAME: admin
+      ME_CONFIG_BASICAUTH_PASSWORD: admin123
+    ports:
+      - "8081:8081"
+    depends_on:
+      - mongodb
+    networks:
+      - jira-network
+
+volumes:
+  mongodb_data:
+  jira_data:
+  postgres_data:
+
+networks:
+  jira-network:
+    driver: bridge
