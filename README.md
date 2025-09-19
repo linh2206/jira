@@ -78,26 +78,32 @@ Sau khi build thành công, bạn có thể truy cập:
 
 | Dịch vụ | URL | Thông tin đăng nhập |
 |---------|-----|-------------------|
-| **Jira** | http://localhost:8080 | admin/admin (sau setup) |
-| **Mongo Express** | http://localhost:8081 | admin/admin123 |
-| **MongoDB** | localhost:27017 | admin/password123 |
+| **Jira** | http://localhost:3000 | admin/admin (sau setup) |
+| **Mongo Express** | http://localhost:27109 | admin/admin123 |
+| **MongoDB** | localhost:27018 | admin/password123 |
 | **PostgreSQL** | localhost:5432 | jira/jira123 |
 
 ## 🔧 Cấu hình
 
 ### MongoDB
 - Database: `jira`
+- Port: 27018 (lắng nghe trực tiếp)
 - User: `jira_user` / `jira_password`
 - Collections: issues, projects, users, workflows
 
 ### PostgreSQL
 - Database: `jiradb`
+- Port: 5432 (lắng nghe trực tiếp)
 - User: `jira` / `jira123`
 
+### Mongo Express
+- Port: 27109 (lắng nghe trực tiếp)
+- User: `admin` / `admin123`
+
 ### Jira
-- Port: 8080
+- Port: 3000 (lắng nghe trực tiếp)
 - Context path: `/`
-- Proxy: localhost:8080
+- Proxy: localhost:3000
 
 ## 📊 Dữ liệu mẫu
 
@@ -113,10 +119,10 @@ Script tự động tạo:
 1. **Port đã được sử dụng**
    ```bash
    # Kiểm tra port đang sử dụng
-   sudo netstat -tulpn | grep :8080
-   sudo netstat -tulpn | grep :27017
+   sudo netstat -tulpn | grep :3000
+   sudo netstat -tulpn | grep :27018
    sudo netstat -tulpn | grep :5432
-   sudo netstat -tulpn | grep :8081
+   sudo netstat -tulpn | grep :27109
    ```
 
 2. **Docker không chạy**
@@ -147,10 +153,10 @@ Script tự động tạo:
 5. **Lỗi firewall**
    ```bash
    # Mở ports cần thiết
-   sudo ufw allow 8080
-   sudo ufw allow 27017
+   sudo ufw allow 3000
+   sudo ufw allow 27018
    sudo ufw allow 5432
-   sudo ufw allow 8081
+   sudo ufw allow 27109
    ```
 
 ### Xem logs chi tiết
@@ -199,6 +205,10 @@ docker-compose logs -f postgres
 - Lần đầu chạy Jira sẽ mất 5-10 phút để khởi tạo
 - Dữ liệu được lưu trong Docker volumes
 - Có thể customize cấu hình trong `docker-compose.yml`
+- **Các service lắng nghe trực tiếp trên port được chỉ định** (không cần port mapping)
+- MongoDB tự động chạy trên port 27018
+- Jira tự động chạy trên port 3000
+- Mongo Express tự động chạy trên port 27109
 
 ## 🤝 Hỗ trợ
 
